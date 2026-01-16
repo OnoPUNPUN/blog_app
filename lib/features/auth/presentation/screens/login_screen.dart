@@ -1,6 +1,5 @@
 import 'package:blog_app/app/config/routes/app_router.dart';
 import 'package:blog_app/core/theme/app_pallete.dart';
-import 'package:blog_app/features/auth/auth_routes.dart';
 import 'package:blog_app/features/auth/presentation/screens/signup_screen.dart';
 import 'package:blog_app/features/auth/presentation/widgets/auth_field.dart';
 import 'package:blog_app/features/auth/presentation/widgets/auth_gradient_button.dart';
