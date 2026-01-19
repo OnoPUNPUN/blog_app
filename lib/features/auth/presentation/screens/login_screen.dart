@@ -15,10 +15,10 @@ class LogInScreen extends StatefulWidget {
   static const String name = 'sign-in';
 
   @override
-  State<LogInScreen> createState() => _SignupScreenState();
+  State<LogInScreen> createState() => _LoginScreenState();
 }
 
-class _SignupScreenState extends State<LogInScreen> {
+class _LoginScreenState extends State<LogInScreen> {
   final TextEditingController _emailTEController = TextEditingController();
   final TextEditingController _passwordTEController = TextEditingController();
   final GlobalKey<FormState> _fromKey = GlobalKey<FormState>();
@@ -31,6 +31,11 @@ class _SignupScreenState extends State<LogInScreen> {
           listener: (context, state) {
             if (state is AuthFailure) {
               showSnackbar(context, state.message);
+            }
+
+            if (state is AuthSuccess) {
+              // Navigate to home after successful login
+              AppRouter.push(context, 'home');
             }
           },
           builder: (context, state) {
@@ -63,7 +68,7 @@ class _SignupScreenState extends State<LogInScreen> {
                         context.read<AuthBloc>().add(
                           AuthLogin(
                             email: _emailTEController.text.trim(),
-                            passwrod: _passwordTEController.text,
+                            password: _passwordTEController.text,
                           ),
                         );
                       }

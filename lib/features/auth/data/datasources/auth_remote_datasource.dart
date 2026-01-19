@@ -3,23 +3,30 @@ import 'package:blog_app/features/auth/data/models/user_model.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 abstract interface class AuthRemoteDatasource {
-  Future<UserModel> signUpWithEmailPasswrod({
+  Session? get currentUserSession;
+  Future<UserModel> signUpWithEmailPassword({
     required String name,
     required String email,
     required String password,
   });
 
-  Future<UserModel> logInWithEmailPasswrod({
+  Future<UserModel> logInWithEmailPassword({
     required String email,
     required String password,
   });
+
+  Future<UserModel?> getCurrentUserData();
 }
 
-class AuthRemoteDataSrouceImpl implements AuthRemoteDatasource {
+class AuthRemoteDatasourceImpl implements AuthRemoteDatasource {
   final SupabaseClient supabaseClient;
-  AuthRemoteDataSrouceImpl(this.supabaseClient);
+  AuthRemoteDatasourceImpl(this.supabaseClient);
+
   @override
-  Future<UserModel> logInWithEmailPasswrod({
+  Session? get currentUserSession => supabaseClient.auth.currentSession;
+
+  @override
+  Future<UserModel> logInWithEmailPassword({
     required String email,
     required String password,
   }) async {
@@ -38,7 +45,7 @@ class AuthRemoteDataSrouceImpl implements AuthRemoteDatasource {
   }
 
   @override
-  Future<UserModel> signUpWithEmailPasswrod({
+  Future<UserModel> signUpWithEmailPassword({
     required String name,
     required String email,
     required String password,
@@ -53,6 +60,22 @@ class AuthRemoteDataSrouceImpl implements AuthRemoteDatasource {
         throw const ServerExpectation('User is Null');
       }
       return UserModel.fromJson(response.user!.toJson());
+    } catch (e) {
+      throw ServerExpectation(e.toString());
+    }
+  }
+
+  @override
+  Future<UserModel?> getCurrentUserData() async {
+    try {
+      if (currentUserSession != null) {
+        final useerData = await supabaseClient
+            .from('profiles')
+            .select()
+            .eq('id', currentUserSession!.user.id);
+
+        return UserModel.fromJson(useerData.first);
+      }
     } catch (e) {
       throw ServerExpectation(e.toString());
     }

@@ -13,12 +13,25 @@ class AuthRepositoryImpl implements AuthRepository {
   const AuthRepositoryImpl(this.authRemoteDatasource);
 
   @override
+  Future<Either<Failure, User>> currentUser() async {
+    try {
+      final user = await authRemoteDatasource.getCurrentUserData();
+      if (user == null) {
+        return left(Failure('User not logged in'));
+      }
+      return Right(user);
+    } on ServerExpectation catch (e) {
+      return left(Failure(e.message));
+    }
+  }
+
+  @override
   Future<Either<Failure, User>> logInWithEmailPassword({
     required String email,
     required String password,
   }) async {
     return _getUser(
-      () async => await authRemoteDatasource.logInWithEmailPasswrod(
+      () async => await authRemoteDatasource.logInWithEmailPassword(
         email: email,
         password: password,
       ),
@@ -32,7 +45,7 @@ class AuthRepositoryImpl implements AuthRepository {
     required String password,
   }) async {
     return _getUser(
-      () async => await authRemoteDatasource.signUpWithEmailPasswrod(
+      () async => await authRemoteDatasource.signUpWithEmailPassword(
         name: name,
         email: email,
         password: password,
